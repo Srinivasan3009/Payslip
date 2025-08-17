@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Payslip</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --border-color: #ddd;
+      --text-color: #333;
+      --background-color: #fff;
+      --header-bg: #f8f9fa;
+    }
+
+    body { 
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: #f5f5f5;
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    #main {
+      background: var(--background-color);
+      width: 21cm;
+      min-height: 29.7cm;
+      padding: 2cm;
+      margin: 1cm auto;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .header img {
+      width: 100px;
+      height: 100px;
+      margin: 0;
+    }
+
+    .header-text {
+      flex: 1;
+    }
+
+    .header h2 {
+      color: var(--primary-color);
+      margin: 5px 0;
+      font-size: 20px;
+    }
+
+    .header h4 {
+      margin: 5px 0;
+      color: var(--text-color);
+      font-size: 14px;
+    }
+
+    #payslipContainer {
+      padding: 20px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      margin: 20px 0;
+    }
+
+    #staffDetails {
+      background-color: var(--header-bg);
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    #staffDetails p, .subject-section p, .total-pay, .subject-info p {
+      margin: 5px 0;
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      line-height: 1.5;
+    }
+
+    #staffDetails p strong, 
+    .subject-section p strong, 
+    .total-pay strong,
+    .subject-info p strong {
+      min-width: 150px;
+      text-align: left;
+      position: relative;
+    }
+
+    #staffDetails p strong::after, 
+    .subject-section p strong::after, 
+    .total-pay strong::after,
+    .subject-info p strong::after {
+      content: ':';
+      position: absolute;
+      right: 5px;
+    }
+
+    .subject-section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+    }
+
+    .subject-info {
+      margin-bottom: 15px;
+    }
+
+    .subject-info h3 {
+      margin: 0 0 10px 0;
+      color: var(--primary-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: var(--header-bg);
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    .total-pay {
+      background-color: var(--header-bg);
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .total-pay span {
+      font-weight: normal;
+    }
+
+    .signatures {
+      margin-top: 50px;
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 0;
+      border-top: 2px solid var(--border-color);
+    }
+
+    .signatures p {
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      position: relative;
+      padding-top: 20px;
+    }
+
+    .signatures p::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 1px;
+      background-color: var(--border-color);
+    }
+
+    .pto {
+      text-align: right;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-color);
+    }
+
+    .download-btn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .download-btn:hover {
+      background-color: #34495e;
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        background: none;
+      }
+      #main {
+        width: 100%;
+        min-height: auto;
+        padding: 0;
+        margin: 0;
+        border: none;
+        box-shadow: none;
+      }
+      .download-btn {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <div class="header">
+      <img src="logo.png" alt="Logo">
+      <div class="header-text">
+        <h2>UNIVERSITY COLLEGE OF ENGINEERING, NAGERCOIL</h2>
+        <h4>(A CONSTITUENT COLLEGE OF ANNA UNIVERSITY CHENNAI)</h4>
+        <h4>NAGERCOIL – 629 004</h4>
+      </div>
+    </div>
+    <h4 style="text-align: center; margin: 20px 0;">CLAIM FOR REMUNERATION FOR HOURLY BASIS TEACHING STAFF MEMBERS FOR B.E/B.TECH PROGRAMME</h4>
+
+    <div id="payslipContainer">
+      <h2 style="text-align: center; color: var(--primary-color);">STAFF PAYSLIP</h2>
+      <div id="staffDetails">
+        <!-- Will be filled dynamically -->
+      </div>
+      <div id="subjectList">
+        <!-- Each subject payslip will be shown here -->
+      </div>
+      <div class="total-pay">
+        <strong>Total Pay This Month:</strong> ₹<span id="totalPay">0</span>
+      </div>
+    </div>
+<br>
+    <div class="signatures">
+      <p>Signature of the Staff</p>
+      <p>Signature of the HOD</p>
+      <p>DEAN</p>
+    </div>
+    <div class="pto">P.T.O</div>
+  </div>
+  <button class="download-btn" onclick="downloadPDF()">Download Payslip as PDF</button>
+
+  <script>
+    async function fetchPayslip() {
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const staff_id = urlParams.get('staff_id');
+            const month = urlParams.get('month');
+            const year = urlParams.get('year');
+
+            if (!staff_id || !month || !year) {
+                alert('Missing required parameters');
+                return;
+            }
+
+            const response = await fetch(`/api/payslip/${staff_id}/${month}/${year}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch payslip data');
+            }
+
+            const data = await response.json();
+
+            // Update staff details
+            const detailsDiv = document.getElementById("staffDetails");
+            detailsDiv.innerHTML = `
+                <p><strong>Name:</strong> ${data.staff_details.name}</p>
+                <p><strong>Designation:</strong>Hourly Basis Staff</p>
+                <p><strong>Department:</strong> ${data.staff_details.department}</p>
+                <p><strong>Month:</strong> ${month} / ${year}</p>
+            `;
+
+            // Update subject list
+            const subjectList = document.getElementById("subjectList");
+            subjectList.innerHTML = "";
+
+            data.payslip_details.forEach(sub => {
+                const subHtml = `
+                    <div style="margin-top: 20px;">
+                        <h3>${sub.subject_name} (${sub.subject_code})</h3>
+                        <p><strong>Class:</strong> ${sub.department}, ${sub.class}</p>
+                        <p><strong>Type:</strong> ${sub.class_type}</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Period No.</th>
+                                    <th>Hours</th>
+                                    <th>Topic</th>
+                                    <th>Pay</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${sub.attendance.map(a => `
+                                    <tr>
+                                        <td>${a.date}</td>
+                                        <td>${a.period_number}</td>
+                                        <td>${a.hour_count}</td>
+                                        <td>${a.topic}</td>
+                                        <td>₹${a.pay}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <p><strong>Total Hours for the subject:</strong> ${sub.total_hours}</p>
+                        <p><strong>Total Hours this month:</strong> ${sub.total_hours}</p>
+                        <p><strong>Remaining Periods:</strong> ${sub.remaining_periods}</p>
+                        <p><strong>Pay for this month:</strong> ₹${sub.pay_for_month}</p>
+                        <hr/>
+                    </div>
+                `;
+                subjectList.innerHTML += subHtml;
+            });
+
+            document.getElementById("totalPay").textContent = data.total_pay;
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to fetch payslip data');
+        }
+    }
+
+    // Keep the existing downloadPDF function as is
+    window.jsPDF = window.jspdf.jsPDF;
+    function downloadPDF() {
+      var doc = new jsPDF();
+      var elementHTML = document.querySelector("#main");
+
+      doc.html(elementHTML, {
+        callback: function(doc) {
+          doc.save('payslip.pdf');
+        },
+        margin: [10, 10, 10, 10],
+        autoPaging: 'text',
+        x: 0,
+        y: 0,
+        width: 190,
+        windowWidth: 1000
+      });
+    }
+
+    // Call fetchPayslip when the page loads
+    document.addEventListener('DOMContentLoaded', fetchPayslip);
+</script>
+</body>
+</html>

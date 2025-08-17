@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Staff Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .dashboard-header {
+      background-color: rgba(0, 0, 0, 0.6);
+      border-bottom: 2px solid #0ef;
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .dashboard-header img {
+      height: 75px;
+    }
+
+    .menu-button {
+      padding: 12px 0;
+    }
+
+    .info-button {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #0ef;
+      cursor: pointer;
+      transition: transform 0.3s ease, color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .info-button:hover {
+      transform: scale(1.2);
+      color: #00ffff;
+    }
+
+    .dropdown-menu.custom-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 0.5rem;
+      background-color: #1a1a1a;
+      border: 1px solid #0ef;
+      padding: 0.5rem 0;
+      border-radius: 0.5rem;
+      animation: fadeIn 0.3s ease-in-out;
+      z-index: 1050;
+      min-width: 200px;
+    }
+
+    .dropdown-menu.custom-dropdown.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      color: #fff;
+      padding: 0.5rem 1rem;
+    }
+
+    .dropdown-item:hover {
+      background-color: #0ef;
+      color: #000;
+    }
+
+    .staff-info,
+    .current-semesters {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-left: 4px solid #0ef;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .info-label {
+      font-weight: bold;
+      color: #0ef;
+    }
+
+    a {
+      position: relative;
+      display: inline-block;
+      color: rgba(255, 255, 255, .4);
+      font-size: 1.5em;
+      letter-spacing: .1em;
+      text-decoration: none;
+      text-transform: uppercase;
+      background: #262c37;
+      padding: 10px 30px;
+      transition: .5s;
+      transition-delay: .8s;
+    }
+
+    a:hover {
+      color: var(--clr);
+      letter-spacing: 0.25em;
+      text-shadow: 0 0 5px var(--clr);
+      transition-delay: 1ms;
+    }
+
+    a span {
+      position: absolute;
+      display: block;
+      background: var(--clr);
+      box-shadow: 0 0 5px var(--clr);
+    }
+
+    a span:nth-child(1), a span:nth-child(2) {
+      top: 0;
+      height: 1.5px;
+      width: 50.5%;
+      transform: scaleX(0);
+      transition: transform .5s;
+    }
+
+    a span:nth-child(1) { left: 0; transform-origin: left; }
+    a span:nth-child(2) { right: 0; transform-origin: right; }
+    a:hover span:nth-child(1) { transform: scaleX(1); transform-origin: right; }
+    a:hover span:nth-child(2) { transform: scaleX(1); transform-origin: left; }
+
+    a span:nth-child(3), a span:nth-child(4) {
+      top: 0;
+      width: 1.5px;
+      height: 100%;
+      transform: scaleY(0);
+      transition: transform .5s;
+      transition-delay: .4s;
+    }
+
+    a span:nth-child(3) { right: 0; transform-origin: bottom; }
+    a span:nth-child(4) { left: 0; transform-origin: bottom; }
+    a:hover span:nth-child(3) { transform: scaleY(1); transform-origin: top; }
+    a:hover span:nth-child(4) { transform: scaleY(1); transform-origin: top; }
+
+    a span:nth-child(5), a span:nth-child(6) {
+      bottom: 0;
+      height: 1.5px;
+      width: 50.5%;
+      transform: scaleX(0);
+      transition: transform .5s;
+      transition-delay: .8s;
+    }
+
+    a span:nth-child(5) { left: 0; transform-origin: right; }
+    a span:nth-child(6) { right: 0; transform-origin: left; }
+    a:hover span:nth-child(5) { transform: scaleX(1); transform-origin: left; }
+    a:hover span:nth-child(6) { transform: scaleX(1); transform-origin: right; }
+
+    .navbar-nav {
+      flex: 1;
+      text-align: center;
+    }
+
+    .navbar-brand {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <img src="Logo.PNG" alt="Logo" />
+      <div>
+        <h5>UNIVERSITY COLLEGE OF ENGINEERING NAGERCOIL</h5>
+        <h6>(A Constituent College of Anna University, Chennai)</h6>
+        <h6>Nagercoil - 629004</h6>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-top border-info">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Staff Dashboard</a>
+      <div class="d-flex align-items-center ms-auto">
+        <div class="menu-button">
+          <button class="info-button" type="button" id="infoBtnNav">
+            <i class="bi bi-three-dots-vertical"></i>
+          </button>
+          <ul class="dropdown-menu custom-dropdown" id="dropdownMenuNav">
+            <li><a class="dropdown-item" href="http://localhost:5870/AttendanceForm">Add Attendance</a></li>
+            <li><a class="dropdown-item" href="http://localhost:5870/SubjectForm">Add Subject</a></li>
+            <li><a class="dropdown-item" href="http://localhost:5870/logout">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="container py-4">
+    <div id="staffInfo">
+    </div>
+
+    <div class="current-semesters">
+      <p><span class="info-label">CURRENT SUBJECTS:</span><p id="subjects"></p></p>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content p-3">
+          <div class="modal-header">
+            <h5 class="modal-title" style="color: #0f2027;">Pay Slip</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <label class="form-label" style="color: #0f2027;">Subject ID</label>
+            <input type="text" id="subject_id" class="form-control" placeholder="Enter Subject ID" required>
+          </div>
+          <div class="modal-body">
+            <label class="form-label" style="color: #0f2027;">Month</label>
+            <input type="text" id="month" class="form-control" placeholder="Enter month" required>
+          </div>
+          <div class="modal-body">
+            <label class="form-label" style="color: #0f2027;">Year</label>
+            <input type="text" id="year" class="form-control" placeholder="Enter year" required>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-danger" onclick="redirectToPayslip()">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- PAYSLIP Button -->
+    <div class="row justify-content-center mt-4">
+      <div class="col-md-6 text-center">
+        <a href="#" style="--clr:#00eeff;" data-bs-toggle="modal" data-bs-target="#deleteModal">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+          Payslip
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // In your frontend JavaScript
+    function redirectToPayslip() {
+        const subject_id = document.getElementById("subject_id").value;
+        const month = document.getElementById("month").value;
+        const year = document.getElementById("year").value;
+        generatePayslip(subject_id,month,year);
+    }
+    async function generatePayslip(subject_id, month, year) {
+      try {
+        const response = await fetch('/generatePayslip', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                subject_id,
+                month,
+                year
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(' 1  Failed to generate payslip');
+        }
+
+        // Handle PDF response
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Payslip_${subject_id}_${month}_${year}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    } catch (error) {
+        console.error('Error generating payslip:', error);
+        alert('2 Failed to generate payslip');
+    }
+}
+    function setupDropdown(infoBtnId, dropdownMenuId) {
+      const infoBtn = document.getElementById(infoBtnId);
+      const dropdownMenu = document.getElementById(dropdownMenuId);
+
+      infoBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('show');
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!infoBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+          dropdownMenu.classList.remove('show');
+        }
+      });
+    }
+    setupDropdown('infoBtnNav', 'dropdownMenuNav');
+    async function fetchStaffData() {
+      try {
+        const response = await fetch('http://localhost:5870/api/staff', {
+          method: 'GET',
+          credentials: 'include' // Include cookies (token)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch staff data');
+        }
+
+        const data = await response.json();
+        // Display the staff data
+        console.log("frontend");
+        console.log(data);
+        displayStaffData(data);
+        fetchSubjects(data);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('staffInfo').innerHTML = "<p>Error loading staff data</p>";
+      }
+    }
+    function displayStaffData(data) {
+      const staffInfoDiv = document.getElementById('staffInfo');
+      staffInfoDiv.innerHTML = `
+      <p><span class="info-label">NAME:</span> ${data.name}</p>
+      <p><span class="info-label">EMAIL:</span> ${data.email}</p>
+      <p><span class="info-label">DEPARTMENT:</span> ${data.department}</p>
+      `;
+    }
+async function fetchSubjects(user) {
+  try {
+    const response = await fetch(`http://localhost:5870/api/staff/${user.staff_id}`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch subjects');
+
+    const subjects = await response.json();
+
+    const subjectsContainer = document.getElementById('subjects');
+    subjectsContainer.innerHTML = ''; // Clear previous content
+
+    subjects.forEach(subject => {
+      const para = document.createElement('p');
+      para.textContent = `${subject.subject_code} - ${subject.subject_name} - ${subject.subject_type} - ${subject.class_name}`;
+     // button.classList.add('subject-btn'); // Optional: for styling
+     // button.onclick = () => openAttendanceForm(subject);
+      subjectsContainer.appendChild(para);
+    });
+    sessionStorage.setItem("subjects",JSON.stringify(subjects));
+  } catch (err) {
+    console.error(err);
+    document.getElementById('subjects').innerHTML = `<p>Error loading subjects</p>`;
+  }
+}
+
+
+    // Fetch the staff data when the page loads
+    fetchStaffData();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
